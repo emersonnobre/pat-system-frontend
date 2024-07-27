@@ -5,6 +5,7 @@ import userService from "../../api/user.service"
 import { useState } from "react"
 import AlertNotification from "../../components/AlertNotification.jsx"
 import { useAuth } from "../../contexts/auth.context.jsx"
+import "./style.css"
 
 function LoginScreen() {
   const { register, handleSubmit, } = useForm()
@@ -39,7 +40,7 @@ function LoginScreen() {
         <Box textAlign={"center"} color={"#f48120"}>
           <h2>PATSearch</h2>
         </Box>
-          <Box display={"flex"} bgcolor={"#1E3E58"} borderRadius={"5px"} sx={{ boxShadow: '2px 3px 5px rgba(0, 0, 0, 0.1)' }}>
+          <Box display={"flex"} bgcolor={"#1E3E58"} borderRadius={"15px"} sx={{ boxShadow: '2px 3px 5px rgba(0, 0, 0, 0.1)' }}>
             <Box padding={"30px"} display={"flex"} alignItems={"center"}>
               <img src={logo} width={"200px"} height={"115px"} />
             </Box>
@@ -47,7 +48,7 @@ function LoginScreen() {
               <Box display={"flex"} flexDirection={"column"} gap={2} bgcolor={"white"} padding={"30px"}>
                 <TextField label="E-mail" variant="outlined" size="small" type="email" {...register("email")} />
                 <TextField label="Senha" variant="outlined" size="small" type="password" {...register("password")} />
-                <Button variant="contained" color="secondary" type="submit" ><strong>Entrar</strong></Button>
+                <Button variant="contained" color="secondary" type="submit" style={{ color: "#fff" }}><strong>Entrar</strong></Button>
               </Box>
             </form>
           </Box>
