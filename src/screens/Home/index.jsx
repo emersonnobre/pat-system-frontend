@@ -1,10 +1,10 @@
-import { Box } from "@mui/material"
+import SideMenu from "../../components/SideMenu"
 
 function Home() {
   return (
-    <Box>
-      <h1>Home page</h1>
-    </Box>
+    <SideMenu>
+      <h1>Conteudo</h1>
+    </SideMenu>
   )
 }
 

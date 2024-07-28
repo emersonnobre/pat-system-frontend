@@ -1,0 +1,16 @@
+.menu-wrapper {
+  height: 100vh;
+}
+
+.menu-item {
+  display: flex;
+  color: #ffffff69;
+  width: "100%";
+  padding: 10px;
+}
+
+.menu-item:hover {
+  background-color: #ffffff69;
+  cursor: pointer;
+  color: #fff;
+}

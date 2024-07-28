@@ -1,0 +1,21 @@
+.menu-wrapper {
+  height: 100vh;
+}
+
+.menu-item {
+  display: flex;
+  color: #ffffff69;
+  width: "100%";
+  padding: 3px 5px 3px 30px;
+  align-items: center;
+}
+
+.menu-item > div {
+  margin-left: 8px;
+}
+
+.menu-item:hover {
+  background-color: #ffffff69;
+  cursor: pointer;
+  color: #fff;
+}
