@@ -1,16 +1,4 @@
-.menu-wrapper {
-  height: 100vh;
-}
-
-.menu-item {
-  display: flex;
-  color: #ffffff69;
-  width: "100%";
-  padding: 10px;
-}
-
-.menu-item:hover {
-  background-color: #ffffff69;
-  cursor: pointer;
+.header-class {
+  background-color: #1E3E58;
   color: #fff;
 }
