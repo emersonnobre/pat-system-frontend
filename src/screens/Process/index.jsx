@@ -8,7 +8,7 @@ import processService from "../../api/process.service"
 import { formatToLocaleString } from "../../utils/datetime"
 import AlertNotification from "../../components/AlertNotification"
 import { orderBy } from "../../utils/array"
-import BasicModal from "../../components/Modal"
+import BasicModal, { DialogModal } from "../../components/Modal"
 import "./style.css"
 
 function Process() {
@@ -19,17 +19,21 @@ function Process() {
   const [editDocument, setEditDocument] = useState(false)
   const [open, setOpen] = useState(false)
   const [idToEdit, setIdToEdit] = useState(null)
+  const [removeModalConfig, setRemoveModalConfig] = useState({
+    open: false,
+    cb: () => {}
+  })
   const theme = useTheme()
   const { register, handleSubmit, } = useForm()
 
   const map = (process) => {
-    console.log(process)
     return {
       ...process,
       prescription_date: formatToLocaleString(process.prescription_date),
       updated_at: formatToLocaleString(process.updated_at),
       updated_at_time: new Date(process.updated_at).toLocaleTimeString(),
       distribution: formatToLocaleString(process.distribution) + " " + new Date(process.distribution).toLocaleTimeString(),
+      movements: process.movements.filter(x => x.active)
     }
   }
 
@@ -62,6 +66,16 @@ function Process() {
       setValidPrescription(data)
     } catch (error) {
       console.log("Erro ao atualizar validade da data de prescrição do processo: ", error)
+    }
+  }
+
+  const removeMovement = (movement) => {
+    try {
+      const token = localStorage.getItem("token")
+      processService.updateMovement(token, movement.id, movement.type, false)
+      setProcess({ ...process, movements: process.movements.filter(x => x.id != movement.id) })
+    } catch (error) {
+      console.log("Erro ao remover movimentação: ", error)
     }
   }
 
@@ -135,7 +149,7 @@ function Process() {
 
   return process ? (
     <>
-      <Box display={"flex"} justifyContent={"center"}>
+      <Box display={"flex"} justifyContent={"center"} minHeight={"100vh"}>
         <Box width={"70%"} sx={{ borderRight: "1px solid #ccc" }} padding={"15px"}>
           <h2>Processo de número {process.number}</h2>
 
@@ -192,7 +206,10 @@ function Process() {
                                     </Box>
                                     <Box 
                                       onClick={() => {
-                                        console.log("clicou")
+                                        setRemoveModalConfig({
+                                          open: true,
+                                          cb: () => removeMovement(movement)
+                                        })
                                       }} 
                                       sx={{ 
                                         cursor: "pointer",
@@ -278,19 +295,27 @@ function Process() {
             <Box marginTop={"10px"} width={"100%"}>
               { validPrescription ? 
                 <form onSubmit={handleSubmit(onSubmit)}>
-                  <textarea rows={30} cols={60} color="#fff" defaultValue={process.document} {...register("document")} disabled={!editDocument} />
-                  { editDocument ?
-                    <Button variant="outlined" color="success" type="submit">
-                      <Typography fontSize={12} fontWeight={600}>
-                        SALVAR
-                      </Typography>
-                    </Button> :
-                    <Button variant="outlined" color="info" type="button" onClick={(ev) => { ev.preventDefault(); setEditDocument(true) }}>
-                      <Typography fontSize={12} fontWeight={600}>
-                        EDITAR
-                      </Typography>
-                    </Button>
-                  }
+                  <Box display={"flex"} flexDirection={"column"} gap={2}>
+                    <textarea rows={30} cols={60} color="#fff" defaultValue={process.document} {...register("document")} disabled={!editDocument} />
+                    { editDocument ?
+                      <Box>
+                        <Button variant="outlined" color="success" type="submit">
+                        <Typography fontSize={12} fontWeight={600}>
+                          SALVAR
+                        </Typography>
+                      </Button>
+                      </Box>
+                       :
+                       <Box>
+                        <Button variant="outlined" color="info" type="button" onClick={(ev) => { ev.preventDefault(); setEditDocument(true) }}>
+                        <Typography fontSize={12} fontWeight={600}>
+                          EDITAR
+                        </Typography>
+                        </Button>
+                      </Box>
+                      
+                    }
+                  </Box>
                 </form> :
                 <Box bgcolor={theme.palette.info.main} 
                      display={"flex"} 
@@ -310,6 +335,7 @@ function Process() {
         <BasicModal open={open} setOpen={setOpen}>
           <EditMovement id={idToEdit} closeModal={() => setOpen(false)} setMessage={setMessage} process={process} />
         </BasicModal>
+        <DialogModal open={removeModalConfig.open} setOpen={(open) => setRemoveModalConfig({...removeModalConfig, open})} cb={removeModalConfig.cb} />
       </Box>
       {message && (<AlertNotification key={new Date()} message={message} severity="success" />)}
     </>
@@ -330,7 +356,7 @@ const EditMovement = ({ id, closeModal, setMessage, process }) => {
       element.classList.add("error-border")
       return
     }
-    processService.updateMovementType(token, id, type, true)
+    processService.updateMovement(token, id, type, true)
       .then(() => {
         setMessage("Movimentação atualizada com sucesso!")
         setTimeout(() => setMessage(null), 1000)
