@@ -33,3 +33,18 @@ textarea {
 ::-webkit-scrollbar-thumb:hover {
   background: #555; /* Cor mais escura ao passar o mouse */
 }
+
+select {
+  border: 1px solid #ccc;
+  padding: 4px;
+  border-radius: 5px;
+}
+
+.item {
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+.destaque {
+  opacity: 0.5; /* Opacidade reduzida para destaque */
+}

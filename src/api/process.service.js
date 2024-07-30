@@ -20,6 +20,10 @@ const processService = {
   updateValidDatePrescription: async (token, id, validated) => {
     const response = await api.put(`/processes/${id}/prescription/valid`, { _prescription_date_validated: validated, updated_by_id: 1 }, { headers: { Authorization: `Bearer ${token}` } })
     return response.data
+  },
+  updateMovementType: async (token, id, type, active) => {
+    const response = await api.put(`/movements/${id}`, { type, active }, { headers: { Authorization: `Bearer ${token}` } })
+    return response.data
   }
 }
 

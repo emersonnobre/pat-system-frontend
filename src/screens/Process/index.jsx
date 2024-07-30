@@ -1,13 +1,14 @@
 import { useLayoutEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import { Box, Button, Card, CardContent, Typography, useTheme } from "@mui/material"
-import { Info, History, PlayArrow, ArrowUpward } from "@mui/icons-material"
+import { Box, Button, Card, CardContent, FormControl, InputLabel, MenuItem, Select, Typography, useTheme } from "@mui/material"
+import { Info, History, PlayArrow, ArrowUpward, EditOutlined, DeleteOutline } from "@mui/icons-material"
 import { Timeline, TimelineConnector, TimelineContent, TimelineItem, TimelineSeparator } from "@mui/lab"
 import { useForm } from "react-hook-form"
 import processService from "../../api/process.service"
 import { formatToLocaleString } from "../../utils/datetime"
 import AlertNotification from "../../components/AlertNotification"
 import { orderBy } from "../../utils/array"
+import BasicModal from "../../components/Modal"
 import "./style.css"
 
 function Process() {
@@ -16,6 +17,8 @@ function Process() {
   const [validPrescription, setValidPrescription] = useState(false)
   const [message, setMessage] = useState(null)
   const [editDocument, setEditDocument] = useState(false)
+  const [open, setOpen] = useState(false)
+  const [idToEdit, setIdToEdit] = useState(null)
   const theme = useTheme()
   const { register, handleSubmit, } = useForm()
 
@@ -80,9 +83,12 @@ function Process() {
     }
 
     return <Box onClick={() => {
-      const element = document.getElementById("card-"+index)
+      const element = document.getElementById("card-box-"+index)
       if (element)
         element.scrollIntoView({ behavior: "smooth" })
+      const oldClasses = element.classList.toString()
+      element.classList += " destaque"
+      setTimeout(() => element.classList = oldClasses, 1000)
     }} sx={{ 
       borderRadius: "100%", 
       width: "30px", 
@@ -125,7 +131,7 @@ function Process() {
       color = theme.palette.success.main
     }
     return color
-  } 
+  }
 
   return process ? (
     <>
@@ -161,17 +167,40 @@ function Process() {
                       <TimelineConnector />
                     </TimelineSeparator>
                     <TimelineContent>
-                      <div id={`card-${movement.id}`}>
+                      <div id={`card-${movement.id}`} className="item" style={{ zIndex: 1 }}>
                         <Card>
-                          <Box display={"flex"}>
+                          <Box id={`card-box-${movement.id}`} display={"flex"} sx={{ transition: "opacity 0.5s ease" }}>
                               <MovementCard index={i} length={process.movements.length}>
                                 {formatToLocaleString(movement.created_at)}
                               </MovementCard>
                               <Box padding={"10px"} width={"100%"}>
-                                <Box borderBottom={"1px solid #eee"} marginBottom={"10px"}>
+                                <Box borderBottom={"1px solid #eee"} marginBottom={"10px"} display={"flex"} justifyContent={"space-between"}>
                                   <Typography variant="subtitle1" fontWeight={600} color={getColor(i, process.movements.length)}>
                                     {movement.type}
                                   </Typography>
+                                  <Box display={"flex"}>
+                                    <Box 
+                                      onClick={() => {
+                                        setOpen(true)
+                                        setIdToEdit(movement.id)
+                                      }} 
+                                      sx={{ 
+                                        cursor: "pointer",
+                                      }}
+                                    >
+                                      <EditOutlined color="primary" />
+                                    </Box>
+                                    <Box 
+                                      onClick={() => {
+                                        console.log("clicou")
+                                      }} 
+                                      sx={{ 
+                                        cursor: "pointer",
+                                      }}
+                                    >
+                                      <DeleteOutline color="error" />
+                                    </Box>
+                                  </Box>
                                 </Box>
                                 <Box padding={"10px"}>
                                   <Typography variant="p" fontSize={"13px"}>
@@ -278,10 +307,61 @@ function Process() {
             </Box>
           </Box>
         </Box>
+        <BasicModal open={open} setOpen={setOpen}>
+          <EditMovement id={idToEdit} closeModal={() => setOpen(false)} setMessage={setMessage} process={process} />
+        </BasicModal>
       </Box>
       {message && (<AlertNotification key={new Date()} message={message} severity="success" />)}
     </>
   ) : <h3>Carregando...</h3>
+}
+
+const EditMovement = ({ id, closeModal, setMessage, process }) => {
+  const [type, setType] = useState(null)
+
+  const handleChange = (event) => {
+    setType(event.target.value);
+  }
+
+  const handleSubmit = () => {
+    const token = localStorage.getItem("token")
+    if (!type) {
+      const element = document.getElementById("type-select")
+      element.classList.add("error-border")
+      return
+    }
+    processService.updateMovementType(token, id, type, true)
+      .then(() => {
+        setMessage("Movimentação atualizada com sucesso!")
+        setTimeout(() => setMessage(null), 1000)
+        process.movements.forEach(movement => {
+          if (movement.id == id)
+            movement.type = type
+        }) 
+      })
+      .finally(closeModal)
+  }
+
+  return (
+    <Box>
+      <Box display={"flex"} width={"100%"} flexDirection={"column"}>
+        <FormControl>
+          <InputLabel>Tipo da movimentação</InputLabel>
+          <Select id="type-select" label="Tipo da movimentação" onChange={handleChange} value={type}>
+            <MenuItem value="PENHORA">PENHORA</MenuItem>
+            <MenuItem value="PEDIDO DE PRAZO">PEDIDO DE PRAZO</MenuItem>
+            <MenuItem value="DECISÃO INTERLOCUTÓRIA">DECISÃO INTERLOCUTÓRIA</MenuItem>
+            <MenuItem value="JUNTADA DE DOCUMENTOS">JUNTADA DE DOCUMENTOS</MenuItem>
+            <MenuItem value="MANIFESTAÇÃO DO MINISTÉRIO PÚBLICO">MANIFESTAÇÃO DO MINISTÉRIO PÚBLICO</MenuItem>
+          </Select>
+          <Box display={"flex"} justifyContent={"end"} marginTop={"10px"}>
+            <Button sx={{ color: "#aaa" }} onClick={closeModal}>Cancelar</Button>
+            <Button type="submit" onClick={handleSubmit}>Salvar</Button>
+          </Box>
+        </FormControl>
+      </Box>
+    </Box>
+  )
 }
 
 export default Process

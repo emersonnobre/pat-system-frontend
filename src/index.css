@@ -11,6 +11,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+* {
+  outline: none;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -43,4 +47,8 @@ h1 {
 
 p {
   font-size: 12px;
+}
+
+.error-border {
+  border: 1px solid tomato !important;
 }
