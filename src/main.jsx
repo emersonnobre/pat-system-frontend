@@ -11,11 +11,19 @@ import Process from "./screens/Process/index.jsx"
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#1E3E58"
+      main: "#1E3E58",
     },
     secondary: {
       main: "#f48120"
-    }
+    },
+    info: {
+      main: "#9db8d4"
+    },
+    success: {
+      main: "#198754",
+      "100": "#c5ead5",
+      "200": "#9fddbb",
+    },
   }
 })
 

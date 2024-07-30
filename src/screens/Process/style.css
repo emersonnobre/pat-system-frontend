@@ -1,0 +1,35 @@
+textarea {
+  resize: none;
+  outline: none;
+}
+
+.timeline-container {  /* Adicione essa classe ao Box que envolve os ícones */
+  display: flex;
+  margin: 50px;
+  padding: 10px;
+  overflow-x: scroll;
+  flex-wrap: nowrap; /* Impede a quebra de linha */
+  max-width: 100%;
+}
+
+/* Estilizando a barra de rolagem */
+::-webkit-scrollbar {
+  width: 8px; /* Largura da barra */
+  height: 4px;
+}
+
+/* Estilizando o fundo da barra */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Cor de fundo */
+}
+
+/* Estilizando o indicador da barra */
+::-webkit-scrollbar-thumb {
+  background: #888; /* Cor do indicador */
+  border-radius: 4px; /* Borda arredondada */
+}
+
+/* Estilizando o indicador quando o mouse está sobre ele */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Cor mais escura ao passar o mouse */
+}

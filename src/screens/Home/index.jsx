@@ -5,7 +5,6 @@ import { Edit } from "@mui/icons-material"
 import { useNavigate } from "react-router-dom"
 import SideMenu from "../../components/SideMenu"
 import processService from "../../api/process.service"
-import { useAuth } from "../../contexts/auth.context"
 import { secondary } from "../../utils/colors"
 import "./index.css"
 
@@ -29,9 +28,9 @@ function Home() {
     pageSize: 10,
     page: 0,
   })
-  const { token } = useAuth()
 
   const handleSort = (data) => {
+    const token = localStorage.getItem("token")
     processService.get(token, pageOptions.pageSize, pageOptions.page * pageOptions.pageSize, data[0]?.field || "prescription_date", data[0]?.sort || "asc")
       .then(result => {
         setProcesses({ data: formatProcesses(result.data), totalCount: result.totalCount })
@@ -39,6 +38,7 @@ function Home() {
   }
 
   useLayoutEffect(() => {
+    const token = localStorage.getItem("token")
     processService.get(token, pageOptions.pageSize, pageOptions.page * pageOptions.pageSize, "prescription_date", "asc")
       .then(result => {
         setProcesses({ data: formatProcesses(result.data), totalCount: result.totalCount })
