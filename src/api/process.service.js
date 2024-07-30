@@ -1,10 +1,10 @@
 import api from "./index"
 
 const processService = {
-  get: async (token, limit, offset, orderBy, order) => {
+  get: async (token, limit, offset, orderBy, order, filters = '') => {
     const response = await api
       .get(
-        `/processes?limit=${limit}&offset=${offset}&orderBy=${orderBy}&order=${order}`, 
+        `/processes?limit=${limit}&offset=${offset}&orderBy=${orderBy}&order=${order}${filters}`, 
         { headers: { Authorization: `Bearer ${token}` } }
       )
     return response.data.data

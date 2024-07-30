@@ -1,5 +1,5 @@
 import { useLayoutEffect, useState } from "react"
-import { Box } from "@mui/material"
+import { Box, Button, TextField } from "@mui/material"
 import { DataGrid } from "@mui/x-data-grid"
 import { Edit } from "@mui/icons-material"
 import { useNavigate } from "react-router-dom"
@@ -8,6 +8,7 @@ import processService from "../../api/process.service"
 import { secondary } from "../../utils/colors"
 import "./index.css"
 import { formatToLocaleString } from "../../utils/datetime"
+import { useForm } from "react-hook-form"
 
 function formatProcesses(processes) {
   return processes.map(process => {
@@ -21,6 +22,7 @@ function formatProcesses(processes) {
 
 function Home() {
   const navigate = useNavigate()
+  const { register, handleSubmit, reset } = useForm()
   const [processes, setProcesses] = useState({
     data: [],
     totalCount: 0
@@ -29,12 +31,48 @@ function Home() {
     pageSize: 10,
     page: 0,
   })
+  const [filters, setFilters] = useState("")
+  const [sort, setSort] = useState({
+    field: "prescription_date",
+    sort: "asc",
+  })
 
   const handleSort = (data) => {
+    let sortObj = {
+      field: "prescription_date",
+      sort: "asc",
+    }
+
+    if (data[0]?.field)
+      sortObj.field = data[0].field
+    if (data[0]?.sort)
+      sortObj.sort = data[0].sort
+
+    setSort(sortObj)
+
     const token = localStorage.getItem("token")
-    processService.get(token, pageOptions.pageSize, pageOptions.page * pageOptions.pageSize, data[0]?.field || "prescription_date", data[0]?.sort || "asc")
+    processService.get(token, pageOptions.pageSize, pageOptions.page * pageOptions.pageSize, sortObj.field, sortObj.sort, filters)
       .then(result => {
         setProcesses({ data: formatProcesses(result.data), totalCount: result.totalCount })
+      })
+  }
+
+  const handleFilter = (filter) => {
+    let filterString = ''
+    if (filter.judgeName)
+      filterString += `&judgeName=${filter.judgeName}`
+    if (filter.executed)
+      filterString += `&executedName=${filter.executed}`
+
+    setFilters(filterString)
+    const token = localStorage.getItem("token")
+    processService.get(token, pageOptions.pageSize, pageOptions.page * pageOptions.pageSize, sort.field || "prescription_date", sort.sort || "asc", filterString)
+      .then(result => {
+        setProcesses({ data: formatProcesses(result.data), totalCount: result.totalCount })
+      })
+      .catch(err => {
+        if (err.status == 404)
+          setProcesses({ data: [], totalCount: 0 })
       })
   }
 
@@ -67,6 +105,14 @@ function Home() {
            color={secondary}
       >
         <h2>Processos próximos da data de prescrição</h2><br />
+        <Box width={"100%"} display={"flex"} justifyContent={"center"} marginBottom={"30px"}>
+          <form onSubmit={handleSubmit(handleFilter)} style={{ display: "flex", gap: 10 }}>
+            <TextField label="Nome do juíz" variant="outlined" size="small" type="text" {...register("judgeName")} />
+            <TextField label="Nome do(s) executado(s)" variant="outlined" size="small" type="text" {...register("executed")} />
+            <Button variant="contained" color="secondary" type="submit" style={{ color: "#fff" }}><strong>Pesquisar</strong></Button>
+            <Button variant="contained" color="primary" type="button" onClick={() => {handleFilter(""); reset()}} style={{ color: "#fff" }}><strong>Limpar filtros</strong></Button>
+          </form>
+        </Box>
         <Box height={635} width={"90%"}>
           <DataGrid
             columns={columns}
@@ -74,7 +120,7 @@ function Home() {
             paginationModel={pageOptions}
             onPaginationModelChange={setPageOptions}
             pageSizeOptions={[5, 10]}
-            rowCount={20}
+            rowCount={processes.totalCount}
             paginationMode="server"
             disableColumnMenu
             onSortModelChange={handleSort}
