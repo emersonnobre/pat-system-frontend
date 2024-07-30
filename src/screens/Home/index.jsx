@@ -7,13 +7,14 @@ import SideMenu from "../../components/SideMenu"
 import processService from "../../api/process.service"
 import { secondary } from "../../utils/colors"
 import "./index.css"
+import { formatToLocaleString } from "../../utils/datetime"
 
 function formatProcesses(processes) {
   return processes.map(process => {
     return {
       ...process,
-      distribution: new Date(process.distribution).toLocaleDateString(),
-      prescription_date: new Date(process.prescription_date).toLocaleDateString(),
+      distribution: `${formatToLocaleString(new Date(process.distribution))} ${new Date(process.distribution).toLocaleTimeString()}`,
+      prescription_date: formatToLocaleString(process.prescription_date),
     }
   })
 }

@@ -10,6 +10,7 @@ import AlertNotification from "../../components/AlertNotification"
 import { orderBy } from "../../utils/array"
 import BasicModal, { DialogModal } from "../../components/Modal"
 import "./style.css"
+import SideMenu from "../../components/SideMenu"
 
 function Process() {
   const { id } = useParams()
@@ -148,8 +149,8 @@ function Process() {
   }
 
   return process ? (
-    <>
-      <Box display={"flex"} justifyContent={"center"} minHeight={"100vh"}>
+    <SideMenu>
+      <Box display={"flex"} justifyContent={"center"} minHeight={"100%"}>
         <Box width={"70%"} sx={{ borderRight: "1px solid #ccc" }} padding={"15px"}>
           <h2>Processo de número {process.number}</h2>
 
@@ -338,7 +339,7 @@ function Process() {
         <DialogModal open={removeModalConfig.open} setOpen={(open) => setRemoveModalConfig({...removeModalConfig, open})} cb={removeModalConfig.cb} />
       </Box>
       {message && (<AlertNotification key={new Date()} message={message} severity="success" />)}
-    </>
+    </SideMenu>
   ) : <h3>Carregando...</h3>
 }
 

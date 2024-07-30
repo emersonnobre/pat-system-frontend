@@ -38,7 +38,7 @@ function LoginScreen() {
         marginTop={"100px"}
       >
         <Box textAlign={"center"} color={"#f48120"}>
-          <h2>PATSearch</h2>
+          <h2>Monitor de Prescrição Tributária - MPT</h2>
         </Box>
           <Box display={"flex"} bgcolor={"#1E3E58"} borderRadius={"15px"} sx={{ boxShadow: '2px 3px 5px rgba(0, 0, 0, 0.1)' }}>
             <Box padding={"30px"} display={"flex"} alignItems={"center"}>
